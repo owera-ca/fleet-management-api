@@ -14,92 +14,117 @@ return new class extends Migration
 
         Schema::create('tbl_trip', function (Blueprint $table) {
             $table->id();
-            $table->integer('driver_id')->nullable();
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('driver_id')->references('id')->on('tbl_driver')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained('tbl_driver')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('tbl_trip_damage', function (Blueprint $table) {
             $table->id();
-            $table->integer('trip_id')->nullable();
-            $table->integer('driver_id')->nullable();
             $table->longText('description')->nullable();
             $table->enum('status', ['pending', 'accepted', 'penalty'])->nullable();
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('trip_id')->references('id')->on('tbl_trip')->onDelete('cascade');
-            $table->foreign('driver_id')->references('id')->on('tbl_driver')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('trip_id')
+                ->nullable()
+                ->constrained('tbl_trip')->onDelete('cascade');
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained('tbl_driver')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('tbl_trip_logbook', function (Blueprint $table) {
             $table->id();
-            $table->integer('trip_id')->nullable();
-            $table->integer('driver_id')->nullable();
             $table->dateTime('start_at')->nullable();
             $table->dateTime('end_at')->nullable();
             $table->enum('reason_stop', ['break', 'fuel', 'delivered'])->nullable();
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('trip_id')->references('id')->on('tbl_trip')->onDelete('cascade');
-            $table->foreign('driver_id')->references('id')->on('tbl_driver')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('trip_id')
+                ->nullable()
+                ->constrained('tbl_trip')->onDelete('cascade');
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained('tbl_driver')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('tbl_trip_pickup_drop', function (Blueprint $table) {
             $table->id();
-            $table->integer('trip_id')->nullable();
             $table->enum('type', ['pickup', 'drop'])->nullable();
-            $table->integer('cargo_id')->nullable();
-            $table->integer('ship_address_id')->nullable();
-            $table->integer('representative_address_id')->nullable();
             $table->enum('status', ['pending', 'completed'])->nullable();
             $table->integer('sort_order')->nullable();
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('trip_id')->references('id')->on('tbl_trip')->onDelete('cascade');
-            $table->foreign('cargo_id')->references('id')->on('mst_cargo')->onDelete('set null');
-            $table->foreign('ship_address_id')->references('id')->on('tbl_ship_address')->onDelete('set null');
-            $table->foreign('representative_address_id')->references('id')->on('mst_address')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('trip_id')
+                ->nullable()
+                ->constrained('tbl_trip')->onDelete('cascade');
+            $table->foreignId('cargo_id')
+                ->nullable()
+                ->constrained('tbl_cargo')->onDelete('set null');
+            $table->foreignId('ship_address_id')
+                ->nullable()
+                ->constrained('tbl_ship_address')->onDelete('set null');
+            $table->foreignId('representative_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('tbl_expense', function (Blueprint $table) {
             $table->id();
-            $table->integer('shipment_id')->nullable();
-            $table->integer('driver_id')->nullable();
             $table->longText('description')->nullable();
             $table->float('subtotal')->nullable();
             $table->float('total')->nullable();
             $table->enum('status', ['pending', 'approved', 'refused'])->nullable();
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('shipment_id')->references('id')->on('tbl_shipment')->onDelete('set null');
-            $table->foreign('driver_id')->references('id')->on('tbl_driver')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('shipment_id')
+                ->nullable()
+                ->constrained('tbl_shipment')->onDelete('set null');
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained('tbl_driver')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('tbl_expense_item', function (Blueprint $table) {
             $table->id();
-            $table->integer('expense_id')->nullable();
-            $table->integer('mst_line_item_id')->nullable();
             $table->float('price')->nullable();
             $table->integer('qty')->nullable();
             $table->float('composite_price')->nullable();
             $table->longText('notes')->nullable();
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('expense_id')->references('id')->on('tbl_expense')->onDelete('cascade');
-            $table->foreign('mst_line_item_id')->references('id')->on('mst_line_item')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('expense_id')
+                ->nullable()
+                ->constrained('tbl_expense')->onDelete('cascade');
+            $table->foreignId('mst_line_item_id')
+                ->nullable()
+                ->constrained('mst_line_item')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
     }

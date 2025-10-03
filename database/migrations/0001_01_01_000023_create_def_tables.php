@@ -14,42 +14,53 @@ return new class extends Migration
 
         Schema::create('def_entity_role', function (Blueprint $table) {
             $table->id();
-            $table->integer('entity_id')->nullable();
-            $table->integer('role_id')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('entity_id')->references('id')->on('def_entities')->onDelete('cascade');
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-            $table->foreign('program_id')->references('id')->on('def_programs')->onDelete('cascade');
+            $table->foreignId('entity_id')
+                ->nullable()
+                ->constrained('mst_entity')->onDelete('set null');
+            $table->foreignId('role_id')
+                ->nullable()
+                ->constrained('mst_role')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('def_entity_transition', function (Blueprint $table) {
             $table->id();
-            $table->integer('entity_id')->nullable();
             $table->string('code', 50)->nullable();
             $table->string('name', 255)->nullable();
             $table->integer('sort_order')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('entity_id')->references('id')->on('def_entities')->onDelete('cascade');
-            $table->foreign('program_id')->references('id')->on('def_programs')->onDelete('cascade');
+            $table->foreignId('entity_id')
+                ->nullable()
+                ->constrained('mst_entity')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('def_entity_transition_role', function (Blueprint $table) {
             $table->id();
-            $table->integer('def_entity_transition_id')->nullable();
-            $table->integer('role_id')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('def_entity_transition_id')->references('id')->on('def_entity_transition')->onDelete('cascade');
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-            $table->foreign('program_id')->references('id')->on('def_programs')->onDelete('cascade');
+            $table->foreignId('def_entity_transition_id')
+                ->nullable()
+                ->constrained('def_entity_transition')->onDelete('set null');
+            $table->foreignId('role_id')
+                ->nullable()
+                ->constrained('mst_role')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
     }

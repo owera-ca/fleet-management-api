@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->text('description')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('users', function (Blueprint $table) {
@@ -30,33 +32,38 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->nullable();
-            $table->integer('role_id')->nullable();
-            $table->integer('program_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('role_id')->references('id')->on('mst_role')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('role_id')
+                ->nullable()
+                ->constrained('mst_role')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         // role dispatch
         Schema::create('tbl_dispatch', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_suspended')->default(false);
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         // role driver
         Schema::create('tbl_driver', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->nullable();
             $table->string('dl_number')->nullable();
             $table->dateTime('dl_expiry_date')->nullable();
             $table->boolean('is_canada_pr')->default(false);
@@ -64,66 +71,84 @@ return new class extends Migration
             $table->string('passport_number')->nullable();
             $table->dateTime('passport_expiry_date')->nullable();
             $table->enum('status', ['inactive', 'active', 'suspended'])->default('inactive');
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         // role shipper
         Schema::create('tbl_shipper', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->nullable();
             $table->string('company_name')->nullable();
-            $table->integer('representative_address_id')->nullable();
-            $table->integer('company_address_id')->nullable();
             $table->boolean('is_verified')->default(false);
             $table->boolean('is_suspended')->default(false);
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('representative_address_id')->references('id')->on('mst_address')->onDelete('set null');
-            $table->foreign('company_address_id')->references('id')->on('mst_address')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')->onDelete('set null');
+            $table->foreignId('representative_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
+            $table->foreignId('company_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         // role mechanic
         Schema::create('tbl_mechanic', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->nullable();
-            $table->integer('shop_id')->nullable();
             $table->enum('status', ['pending', 'active', 'retired', 'suspended'])->default('pending');
             $table->dateTime('start_date')->nullable();
             $table->dateTime('last_date')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('shop_id')->references('id')->on('tbl_shop')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')->onDelete('set null');
+            $table->foreignId('shop_id')
+                ->nullable()
+                ->constrained('tbl_shop')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         // role carrier
         Schema::create('tbl_carrier', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->nullable();
-            $table->integer('company_address_id')->nullable();
-            $table->integer('representative_address_id')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->integer('logo_asset_id')->nullable();
-            $table->integer('program_id')->nullable();
+            $table->integer('logo_path')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('company_address_id')->references('id')->on('tbl_address')->onDelete('set null');
-            $table->foreign('representative_address_id')->references('id')->on('tbl_address')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')->onDelete('set null');
+            $table->foreignId('company_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
+            $table->foreignId('representative_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

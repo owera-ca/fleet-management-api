@@ -13,35 +13,42 @@ return new class extends Migration
     {
         Schema::create('tbl_payroll', function (Blueprint $table) {
             $table->id();
-            $table->integer('driver_id')->nullable();
             $table->dateTime('start_at')->nullable();
             $table->dateTime('end_at')->nullable();
             $table->enum('status', ['pending', 'approved', 'cancelled'])->nullable();
             $table->float('subtotal')->nullable();
             $table->float('total')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('driver_id')->references('id')->on('tbl_driver')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained('tbl_driver')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
         Schema::create('tbl_payroll_item', function (Blueprint $table) {
             $table->id();
-            $table->integer('payroll_id')->nullable();
-            $table->integer('driver_id')->nullable();
             $table->enum('type', ['shipment', 'expense', 'damage'])->nullable();
             $table->integer('type_id')->nullable();
             $table->float('amount')->nullable();
             $table->dateTime('processed_on')->nullable();
             $table->longText('notes')->nullable();
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('payroll_id')->references('id')->on('tbl_payroll')->onDelete('cascade');
-            $table->foreign('driver_id')->references('id')->on('tbl_driver')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('set null');
+            $table->foreignId('payroll_id')
+                ->nullable()
+                ->constrained('tbl_payroll')->onDelete('cascade');
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained('tbl_driver')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
     }

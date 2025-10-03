@@ -17,16 +17,36 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('iso3_code', 3)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('mst_province', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('iso3_code', 3)->nullable();
-            $table->integer('country_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('country_id')->references('id')->on('mst_country')->onDelete('cascade');
+            $table->foreignId('country_id')
+                ->nullable()
+                ->constrained('mst_country')->onDelete('set null');
+        });
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        Schema::create('mst_program', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->nullable();
+            $table->string('code')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreignId('company_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
+            $table->foreignId('representative_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
         });
 
         Schema::create('tbl_address', function (Blueprint $table) {
@@ -40,47 +60,48 @@ return new class extends Migration
             $table->string('addr1')->nullable();
             $table->string('addr2')->nullable();
             $table->string('postal_zip')->nullable();
-            $table->integer('province_state_id')->nullable();
-            $table->integer('country_id')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
-            $table->foreign('country_id')->references('id')->on('mst_country')->onDelete('cascade');
-            $table->foreign('province_state_id')->references('id')->on('mst_province')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('cascade');
+            $table->foreignId('country_id')
+                ->nullable()
+                ->constrained('mst_country')->onDelete('cascade');
+            $table->foreignId('province_state_id')
+                ->nullable()
+                ->constrained('mst_province')->onDelete('cascade');
         });
 
-        Schema::create('mst_program', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->nullable();
-            $table->string('code')->nullable();
-            $table->integer('company_address_id')->nullable();
-            $table->integer('representative_address_id')->nullable();
-            $table->timestamps();
-        });
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         Schema::create('mst_entity', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();
             $table->string('name')->nullable();
             $table->string('table')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('cascade');
         });
 
         Schema::create('mst_document', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();
             $table->string('name')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('cascade');
         });
 
         Schema::create('mst_email_template', function (Blueprint $table) {
@@ -89,22 +110,26 @@ return new class extends Migration
             $table->longText('subject_params')->nullable();
             $table->longText('body_text')->nullable();
             $table->longText('body_params')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('cascade');
         });
 
         Schema::create('mst_sms_template', function (Blueprint $table) {
             $table->id();
             $table->longText('sms_body_text')->nullable();
             $table->longText('sms_body_params')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('cascade');
         });
 
         Schema::create('mst_event', function (Blueprint $table) {
@@ -112,17 +137,21 @@ return new class extends Migration
             $table->string('event_name')->nullable();
             $table->string('event_code')->nullable();
             $table->string('roles')->nullable();
-            $table->integer('email_template_id')->nullable();
-            $table->integer('sms_template_id')->nullable();
             $table->boolean('send_email')->default(false);
             $table->boolean('send_sms')->default(false);
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
-            $table->foreign('email_template_id')->references('id')->on('mst_email_template')->onDelete('cascade');
-            $table->foreign('sms_template_id')->references('id')->on('mst_sms_template')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
+            $table->foreignId('email_template_id')
+                ->nullable()
+                ->constrained('mst_email_template')->onDelete('set null');
+            $table->foreignId('sms_template_id')
+                ->nullable()
+                ->constrained('mst_sms_template')->onDelete('set null');
         });
 
         Schema::create('mst_line_item', function (Blueprint $table) {
@@ -133,42 +162,51 @@ return new class extends Migration
             $table->integer('_rgt')->nullable();
             $table->integer('depth')->default(0);
             $table->float('price')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('cascade');
         });
 
         Schema::create('mst_metadata', function (Blueprint $table) {
             $table->id();
             $table->string('code')->nullable();
             $table->string('name')->nullable();
-            $table->integer('mst_entity_id')->nullable();
             $table->string('external_id')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
-            $table->foreign('mst_entity_id')->references('id')->on('mst_entity')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
+            $table->foreignId('mst_entity_id')
+                ->nullable()
+                ->constrained('mst_entity')->onDelete('set null');
         });
 
         Schema::create('tbl_shop', function (Blueprint $table) {
             $table->id();
             $table->string('shop_name')->nullable();
-            $table->integer('shop_address_id')->nullable();
-            $table->integer('representative_address_id')->nullable();
             $table->integer('parent_id')->nullable();
             $table->integer('_lft')->nullable();
             $table->integer('_rgt')->nullable();
             $table->integer('depth')->default(0);
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
-            $table->foreign('shop_address_id')->references('id')->on('tbl_address')->onDelete('set null');
-            $table->foreign('representative_address_id')->references('id')->on('tbl_address')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
+            $table->foreignId('shop_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
+            $table->foreignId('representative_address_id')
+                ->nullable()
+                ->constrained('tbl_address')->onDelete('set null');
         });
 
         Schema::create('mst_orgnode', function (Blueprint $table) {
@@ -178,10 +216,12 @@ return new class extends Migration
             $table->integer('_lft')->nullable();
             $table->integer('_rgt')->nullable();
             $table->integer('depth')->default(0);
-            $table->integer('program_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
 
     }

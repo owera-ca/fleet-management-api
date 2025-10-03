@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('mst_truck_maintenence', function (Blueprint $table) {
             $table->id();
-            $table->integer('mst_line_item')->nullable();
             $table->integer('schedule_days')->nullable();
             $table->float('schedule_km')->nullable();
-            $table->integer('program_id')->nullable();
             $table->longText('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
-            $table->foreign('mst_line_item')->references('id')->on('mst_line_item')->onDelete('set null');
-            $table->foreign('program_id')->references('id')->on('mst_program')->onDelete('cascade');
+            $table->foreignId('mst_line_item')
+                ->nullable()
+                ->constrained('mst_line_item')->onDelete('set null');
+            $table->foreignId('program_id')
+                ->nullable()
+                ->constrained('mst_program')->onDelete('set null');
         });
     }
 
