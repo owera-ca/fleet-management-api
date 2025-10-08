@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::disableForeignKeyConstraints();
 
         Schema::create('tbl_trans', function (Blueprint $table) {
             $table->id();
@@ -52,7 +52,7 @@ return new class extends Migration
                 ->constrained('mst_program')->onDelete('set null');
         });
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Schema::enableForeignKeyConstraints();
 
         Schema::create('tbl_order_item', function (Blueprint $table) {
             $table->id();

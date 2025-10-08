@@ -32,7 +32,7 @@ return new class extends Migration
                 ->constrained('mst_country')->onDelete('set null');
         });
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::disableForeignKeyConstraints();
 
         Schema::create('mst_program', function (Blueprint $table) {
             $table->id();
@@ -75,7 +75,7 @@ return new class extends Migration
                 ->constrained('mst_province')->onDelete('cascade');
         });
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Schema::enableForeignKeyConstraints();
 
         Schema::create('mst_entity', function (Blueprint $table) {
             $table->id();
