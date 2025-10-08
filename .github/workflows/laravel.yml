@@ -46,4 +46,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          script: "cd /var/www/html/fm.owera.ca && ./scripts/deploy.sh"
+          script: "cd /var/www/html/fm.owera.ca && ./deploy.sh"
