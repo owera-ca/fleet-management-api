@@ -8,8 +8,18 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// File and Folder routes
 Route::middleware(['auth:sanctum'])->group(function () {
-    // country routes
-    Route::apiResource('country', CountryController::class);
+    
 });
+
+// register api
+Route::post('/register', [App\Http\Controllers\AuthController::class, 'register']);
+
+// login api
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
+
+// logout api
+Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+// country routes
+Route::apiResource('country', CountryController::class);

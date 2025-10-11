@@ -20,6 +20,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): Response
     {
+        die('here');
         $request->validate([
             'f_name' => ['required', 'string', 'max:255'],
             'l_name' => ['required', 'string', 'max:255'],

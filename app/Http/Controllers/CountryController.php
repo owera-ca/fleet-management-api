@@ -73,8 +73,8 @@ class CountryController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $id,
+            'name' => 'required|string|max:255',
+            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
         ]);
 
         $country->update($validated);
