@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\TripPickupDrop;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="TripPickupDrop",
+ *     description="API Endpoints of TripPickupDrop"
  * )
  */
-class CountryController extends Controller
+class TripPickupDropController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/trip-pickup-drop",
+     *      operationId="getTripPickupDropList",
+     *      tags={"TripPickupDrop"},
+     *      summary="Get list of TripPickupDrop",
+     *      description="Returns list of TripPickupDrop",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,21 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return TripPickupDrop::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/trip-pickup-drop",
+     *      operationId="storeTripPickupDrop",
+     *      tags={"TripPickupDrop"},
+     *      summary="Store new TripPickupDrop",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"trip_id"},
+     *              @OA\Property(property="trip_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -84,25 +74,29 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'type' => 'nullable|string|max:255',
+            'status' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'trip_id' => 'required|exists:tbl_trip,id',
+            'cargo_id' => 'nullable|exists:tbl_cargo,id',
+            'ship_address_id' => 'nullable|exists:tbl_ship_address,id',
+            'representative_address_id' => 'nullable|exists:tbl_address,id',
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return TripPickupDrop::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/trip-pickup-drop/{id}",
+     *      operationId="getTripPickupDropById",
+     *      tags={"TripPickupDrop"},
+     *      summary="Get information about TripPickupDrop",
+     *      description="Returns TripPickupDrop data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="TripPickupDrop id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +125,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return TripPickupDrop::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/trip-pickup-drop/{id}",
+     *      operationId="updateTripPickupDrop",
+     *      tags={"TripPickupDrop"},
+     *      summary="Update existing TripPickupDrop",
+     *      description="Returns updated TripPickupDrop data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="TripPickupDrop id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +149,8 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"trip_id"},
+     *              @OA\Property(property="trip_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +175,35 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = TripPickupDrop::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'type' => 'nullable|string|max:255',
+            'status' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'trip_id' => 'required|exists:tbl_trip,id',
+            'cargo_id' => 'nullable|exists:tbl_cargo,id',
+            'ship_address_id' => 'nullable|exists:tbl_ship_address,id',
+            'representative_address_id' => 'nullable|exists:tbl_address,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/trip-pickup-drop/{id}",
+     *      operationId="deleteTripPickupDrop",
+     *      tags={"TripPickupDrop"},
+     *      summary="Delete existing TripPickupDrop",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="TripPickupDrop id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +229,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        TripPickupDrop::destroy($id);
+        return response()->json(null, 204);
     }
 }

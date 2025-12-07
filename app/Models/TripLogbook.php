@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class TripLogbook extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'tbl_trip_logbook';
+
+    protected $fillable = [
+        'start_at',
+        'end_at',
+        'reason_stop',
+        'trip_id',
+        'driver_id',
+        'program_id',
+    ];
+
+    public function trip()
+    {
+        return $this->belongsTo(Trip::class, 'trip_id');
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class, 'driver_id');
+    }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class, 'program_id');
+    }
+}

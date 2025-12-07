@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\EntityRoleDefinition;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="EntityRoleDefinition",
+ *     description="API Endpoints of EntityRoleDefinition"
  * )
  */
-class CountryController extends Controller
+class EntityRoleDefinitionController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/entity-role-definition",
+     *      operationId="getEntityRoleDefinitionList",
+     *      tags={"EntityRoleDefinition"},
+     *      summary="Get list of EntityRoleDefinition",
+     *      description="Returns list of EntityRoleDefinition",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,22 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return EntityRoleDefinition::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/entity-role-definition",
+     *      operationId="storeEntityRoleDefinition",
+     *      tags={"EntityRoleDefinition"},
+     *      summary="Store new EntityRoleDefinition",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"entity_id","role_id"},
+     *              @OA\Property(property="entity_id", type="integer", example=1),
+     *              @OA\Property(property="role_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -84,25 +75,25 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'entity_id' => 'required|exists:mst_entity,id',
+            'role_id' => 'required|exists:mst_role,id',
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return EntityRoleDefinition::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/entity-role-definition/{id}",
+     *      operationId="getEntityRoleDefinitionById",
+     *      tags={"EntityRoleDefinition"},
+     *      summary="Get information about EntityRoleDefinition",
+     *      description="Returns EntityRoleDefinition data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="EntityRoleDefinition id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +122,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return EntityRoleDefinition::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/entity-role-definition/{id}",
+     *      operationId="updateEntityRoleDefinition",
+     *      tags={"EntityRoleDefinition"},
+     *      summary="Update existing EntityRoleDefinition",
+     *      description="Returns updated EntityRoleDefinition data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="EntityRoleDefinition id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +146,9 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"entity_id","role_id"},
+     *              @OA\Property(property="entity_id", type="integer", example=1),
+     *              @OA\Property(property="role_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +173,31 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = EntityRoleDefinition::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'entity_id' => 'required|exists:mst_entity,id',
+            'role_id' => 'required|exists:mst_role,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/entity-role-definition/{id}",
+     *      operationId="deleteEntityRoleDefinition",
+     *      tags={"EntityRoleDefinition"},
+     *      summary="Delete existing EntityRoleDefinition",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="EntityRoleDefinition id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +223,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        EntityRoleDefinition::destroy($id);
+        return response()->json(null, 204);
     }
 }

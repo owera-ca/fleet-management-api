@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\Address;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="Address",
+ *     description="API Endpoints of Address"
  * )
  */
-class CountryController extends Controller
+class AddressController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/address",
+     *      operationId="getAddressList",
+     *      tags={"Address"},
+     *      summary="Get list of Address",
+     *      description="Returns list of Address",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,22 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return Address::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/address",
+     *      operationId="storeAddress",
+     *      tags={"Address"},
+     *      summary="Store new Address",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"addr1"},
+     *              @OA\Property(property="addr1", type="string", example="123 Main St"),
+     *              @OA\Property(property="city", type="string", example="New York"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -84,25 +75,34 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'f_name' => 'nullable|string|max:255',
+            'l_name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'alt_email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:255',
+            'alt_phone' => 'nullable|string|max:255',
+            'addr1' => 'nullable|string|max:255',
+            'addr2' => 'nullable|string|max:255',
+            'postal_zip' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'country_id' => 'nullable|exists:mst_country,id',
+            'province_state_id' => 'nullable|exists:mst_province,id',
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return Address::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/address/{id}",
+     *      operationId="getAddressById",
+     *      tags={"Address"},
+     *      summary="Get information about Address",
+     *      description="Returns Address data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Address id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +131,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return Address::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/address/{id}",
+     *      operationId="updateAddress",
+     *      tags={"Address"},
+     *      summary="Update existing Address",
+     *      description="Returns updated Address data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Address id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +155,8 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"addr1"},
+     *              @OA\Property(property="addr1", type="string", example="123 Main St"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +181,40 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = Address::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'f_name' => 'nullable|string|max:255',
+            'l_name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'alt_email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:255',
+            'alt_phone' => 'nullable|string|max:255',
+            'addr1' => 'nullable|string|max:255',
+            'addr2' => 'nullable|string|max:255',
+            'postal_zip' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'country_id' => 'nullable|exists:mst_country,id',
+            'province_state_id' => 'nullable|exists:mst_province,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/address/{id}",
+     *      operationId="deleteAddress",
+     *      tags={"Address"},
+     *      summary="Delete existing Address",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Address id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +240,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        Address::destroy($id);
+        return response()->json(null, 204);
     }
 }

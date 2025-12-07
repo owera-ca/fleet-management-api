@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="User",
+ *     description="API Endpoints of User"
  * )
  */
-class CountryController extends Controller
+class UserController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/user",
+     *      operationId="getUserList",
+     *      tags={"User"},
+     *      summary="Get list of User",
+     *      description="Returns list of User",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,23 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return User::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/user",
+     *      operationId="storeUser",
+     *      tags={"User"},
+     *      summary="Store new User",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"name","email","password"},
+     *              @OA\Property(property="name", type="string", example="John Doe"),
+     *              @OA\Property(property="email", type="string", example="john@example.com"),
+     *              @OA\Property(property="password", type="string", example="password"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -85,24 +77,27 @@ class CountryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'role_id' => 'nullable|exists:mst_role,id',
+            'program_id' => 'nullable|exists:mst_program,id',
         ]);
 
-        $country = Country::create($validated);
+        $validated['password'] = bcrypt($validated['password']);
 
-        return response()->json($country, 201);
+        return User::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/user/{id}",
+     *      operationId="getUserById",
+     *      tags={"User"},
+     *      summary="Get information about User",
+     *      description="Returns User data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="User id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +126,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return User::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/user/{id}",
+     *      operationId="updateUser",
+     *      tags={"User"},
+     *      summary="Update existing User",
+     *      description="Returns updated User data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="User id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +150,9 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"name","email"},
+     *              @OA\Property(property="name", type="string", example="John Doe"),
+     *              @OA\Property(property="email", type="string", example="john@example.com"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +177,38 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = User::findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'role_id' => 'nullable|exists:mst_role,id',
+            'program_id' => 'nullable|exists:mst_program,id',
         ]);
 
-        $country->update($validated);
+        if (isset($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
 
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/user/{id}",
+     *      operationId="deleteUser",
+     *      tags={"User"},
+     *      summary="Delete existing User",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="User id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +234,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        User::destroy($id);
+        return response()->json(null, 204);
     }
 }

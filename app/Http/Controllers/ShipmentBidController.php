@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\ShipmentBid;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="ShipmentBid",
+ *     description="API Endpoints of ShipmentBid"
  * )
  */
-class CountryController extends Controller
+class ShipmentBidController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/shipment-bid",
+     *      operationId="getShipmentBidList",
+     *      tags={"ShipmentBid"},
+     *      summary="Get list of ShipmentBid",
+     *      description="Returns list of ShipmentBid",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,22 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return ShipmentBid::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/shipment-bid",
+     *      operationId="storeShipmentBid",
+     *      tags={"ShipmentBid"},
+     *      summary="Store new ShipmentBid",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"shipment_id","carrier_id"},
+     *              @OA\Property(property="shipment_id", type="integer", example=1),
+     *              @OA\Property(property="carrier_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -84,25 +75,27 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'amount' => 'nullable|numeric',
+            'status' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'shipment_id' => 'required|exists:tbl_shipment,id',
+            'carrier_id' => 'required|exists:mst_entity,id', // Assuming Carrier is Entity
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return ShipmentBid::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/shipment-bid/{id}",
+     *      operationId="getShipmentBidById",
+     *      tags={"ShipmentBid"},
+     *      summary="Get information about ShipmentBid",
+     *      description="Returns ShipmentBid data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="ShipmentBid id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +124,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return ShipmentBid::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/shipment-bid/{id}",
+     *      operationId="updateShipmentBid",
+     *      tags={"ShipmentBid"},
+     *      summary="Update existing ShipmentBid",
+     *      description="Returns updated ShipmentBid data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="ShipmentBid id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +148,9 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"shipment_id","carrier_id"},
+     *              @OA\Property(property="shipment_id", type="integer", example=1),
+     *              @OA\Property(property="carrier_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +175,33 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = ShipmentBid::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'amount' => 'nullable|numeric',
+            'status' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'shipment_id' => 'required|exists:tbl_shipment,id',
+            'carrier_id' => 'required|exists:mst_entity,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/shipment-bid/{id}",
+     *      operationId="deleteShipmentBid",
+     *      tags={"ShipmentBid"},
+     *      summary="Delete existing ShipmentBid",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="ShipmentBid id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +227,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        ShipmentBid::destroy($id);
+        return response()->json(null, 204);
     }
 }

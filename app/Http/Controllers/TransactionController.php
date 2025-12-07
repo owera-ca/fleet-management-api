@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="Transaction",
+ *     description="API Endpoints of Transaction"
  * )
  */
-class CountryController extends Controller
+class TransactionController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/transaction",
+     *      operationId="getTransactionList",
+     *      tags={"Transaction"},
+     *      summary="Get list of Transaction",
+     *      description="Returns list of Transaction",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,21 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return Transaction::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/transaction",
+     *      operationId="storeTransaction",
+     *      tags={"Transaction"},
+     *      summary="Store new Transaction",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"amount"},
+     *              @OA\Property(property="amount", type="number", example=100.00),
      *          ),
      *      ),
      *      @OA\Response(
@@ -84,25 +74,26 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'amount' => 'required|numeric',
+            'type' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'entity_id' => 'nullable|exists:mst_entity,id',
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return Transaction::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/transaction/{id}",
+     *      operationId="getTransactionById",
+     *      tags={"Transaction"},
+     *      summary="Get information about Transaction",
+     *      description="Returns Transaction data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Transaction id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +122,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return Transaction::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/transaction/{id}",
+     *      operationId="updateTransaction",
+     *      tags={"Transaction"},
+     *      summary="Update existing Transaction",
+     *      description="Returns updated Transaction data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Transaction id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +146,8 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"amount"},
+     *              @OA\Property(property="amount", type="number", example=100.00),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +172,32 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = Transaction::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'amount' => 'required|numeric',
+            'type' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'entity_id' => 'nullable|exists:mst_entity,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/transaction/{id}",
+     *      operationId="deleteTransaction",
+     *      tags={"Transaction"},
+     *      summary="Delete existing Transaction",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Transaction id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +223,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        Transaction::destroy($id);
+        return response()->json(null, 204);
     }
 }

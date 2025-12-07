@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="Expense",
+ *     description="API Endpoints of Expense"
  * )
  */
-class CountryController extends Controller
+class ExpenseController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/expense",
+     *      operationId="getExpenseList",
+     *      tags={"Expense"},
+     *      summary="Get list of Expense",
+     *      description="Returns list of Expense",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,21 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return Expense::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/expense",
+     *      operationId="storeExpense",
+     *      tags={"Expense"},
+     *      summary="Store new Expense",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"driver_id"},
+     *              @OA\Property(property="driver_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -84,25 +74,28 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'description' => 'nullable|string',
+            'subtotal' => 'nullable|numeric',
+            'total' => 'nullable|numeric',
+            'status' => 'nullable|string|max:255',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'shipment_id' => 'nullable|exists:tbl_shipment,id',
+            'driver_id' => 'nullable|exists:tbl_driver,id',
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return Expense::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/expense/{id}",
+     *      operationId="getExpenseById",
+     *      tags={"Expense"},
+     *      summary="Get information about Expense",
+     *      description="Returns Expense data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Expense id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +124,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return Expense::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/expense/{id}",
+     *      operationId="updateExpense",
+     *      tags={"Expense"},
+     *      summary="Update existing Expense",
+     *      description="Returns updated Expense data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Expense id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +148,8 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"driver_id"},
+     *              @OA\Property(property="driver_id", type="integer", example=1),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +174,34 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = Expense::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'description' => 'nullable|string',
+            'subtotal' => 'nullable|numeric',
+            'total' => 'nullable|numeric',
+            'status' => 'nullable|string|max:255',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'shipment_id' => 'nullable|exists:tbl_shipment,id',
+            'driver_id' => 'nullable|exists:tbl_driver,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/expense/{id}",
+     *      operationId="deleteExpense",
+     *      tags={"Expense"},
+     *      summary="Delete existing Expense",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="Expense id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +227,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        Expense::destroy($id);
+        return response()->json(null, 204);
     }
 }

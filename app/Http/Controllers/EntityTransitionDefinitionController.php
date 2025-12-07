@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\EntityTransitionDefinition;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="EntityTransitionDefinition",
+ *     description="API Endpoints of EntityTransitionDefinition"
  * )
  */
-class CountryController extends Controller
+class EntityTransitionDefinitionController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/entity-transition-definition",
+     *      operationId="getEntityTransitionDefinitionList",
+     *      tags={"EntityTransitionDefinition"},
+     *      summary="Get list of EntityTransitionDefinition",
+     *      description="Returns list of EntityTransitionDefinition",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,23 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return EntityTransitionDefinition::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/entity-transition-definition",
+     *      operationId="storeEntityTransitionDefinition",
+     *      tags={"EntityTransitionDefinition"},
+     *      summary="Store new EntityTransitionDefinition",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"name","from_state","to_state"},
+     *              @OA\Property(property="name", type="string", example="Approve"),
+     *              @OA\Property(property="from_state", type="string", example="Pending"),
+     *              @OA\Property(property="to_state", type="string", example="Approved"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -85,24 +77,26 @@ class CountryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'from_state' => 'required|string|max:255',
+            'to_state' => 'required|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'entity_id' => 'nullable|exists:mst_entity,id',
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return EntityTransitionDefinition::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/entity-transition-definition/{id}",
+     *      operationId="getEntityTransitionDefinitionById",
+     *      tags={"EntityTransitionDefinition"},
+     *      summary="Get information about EntityTransitionDefinition",
+     *      description="Returns EntityTransitionDefinition data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="EntityTransitionDefinition id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +125,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return EntityTransitionDefinition::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/entity-transition-definition/{id}",
+     *      operationId="updateEntityTransitionDefinition",
+     *      tags={"EntityTransitionDefinition"},
+     *      summary="Update existing EntityTransitionDefinition",
+     *      description="Returns updated EntityTransitionDefinition data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="EntityTransitionDefinition id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +149,10 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"name","from_state","to_state"},
+     *              @OA\Property(property="name", type="string", example="Approve"),
+     *              @OA\Property(property="from_state", type="string", example="Pending"),
+     *              @OA\Property(property="to_state", type="string", example="Approved"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +177,33 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = EntityTransitionDefinition::findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'from_state' => 'required|string|max:255',
+            'to_state' => 'required|string|max:255',
+            'notes' => 'nullable|string',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'entity_id' => 'nullable|exists:mst_entity,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/entity-transition-definition/{id}",
+     *      operationId="deleteEntityTransitionDefinition",
+     *      tags={"EntityTransitionDefinition"},
+     *      summary="Delete existing EntityTransitionDefinition",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="EntityTransitionDefinition id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +229,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        EntityTransitionDefinition::destroy($id);
+        return response()->json(null, 204);
     }
 }

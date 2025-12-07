@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\TruckTracking;
 use Illuminate\Http\Request;
 
 /**
  * @OA\Tag(
- *     name="Country",
- *     description="API Endpoints of Country"
+ *     name="TruckTracking",
+ *     description="API Endpoints of TruckTracking"
  * )
  */
-class CountryController extends Controller
+class TruckTrackingController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/country",
-     *      operationId="getCountryList",
-     *      tags={"Country"},
-     *      summary="Get list of Country",
-     *      description="Returns list of Country",
+     *      path="/api/truck-tracking",
+     *      operationId="getTruckTrackingList",
+     *      tags={"TruckTracking"},
+     *      summary="Get list of TruckTracking",
+     *      description="Returns list of TruckTracking",
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -36,31 +36,23 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = Country::all();
-        return response()->json($countries);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return TruckTracking::all();
     }
 
     /**
      * @OA\Post(
-     *      path="/api/country",
-     *      operationId="storeCountry",
-     *      tags={"Country"},
-     *      summary="Store new Country",
+     *      path="/api/truck-tracking",
+     *      operationId="storeTruckTracking",
+     *      tags={"TruckTracking"},
+     *      summary="Store new TruckTracking",
      *      description="Returns model data",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"truck_id","lat","lng"},
+     *              @OA\Property(property="truck_id", type="integer", example=1),
+     *              @OA\Property(property="lat", type="number", example=40.7128),
+     *              @OA\Property(property="lng", type="number", example=-74.0060),
      *          ),
      *      ),
      *      @OA\Response(
@@ -84,25 +76,25 @@ class CountryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'required|string|max:3|unique:mst_country,iso3_code',
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'truck_id' => 'required|exists:tbl_truck,id',
         ]);
 
-        $country = Country::create($validated);
-
-        return response()->json($country, 201);
+        return TruckTracking::create($validated);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/country/{id}",
-     *      operationId="getCountryById",
-     *      tags={"Country"},
-     *      summary="Get information about Country",
-     *      description="Returns Country data",
+     *      path="/api/truck-tracking/{id}",
+     *      operationId="getTruckTrackingById",
+     *      tags={"TruckTracking"},
+     *      summary="Get information about TruckTracking",
+     *      description="Returns TruckTracking data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="TruckTracking id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -131,35 +123,21 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        return response()->json($country);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return TruckTracking::findOrFail($id);
     }
 
     /**
      * @OA\Put(
-     *      path="/api/country/{id}",
-     *      operationId="updateCountry",
-     *      tags={"Country"},
-     *      summary="Update existing Country",
-     *      description="Returns updated Country data",
+     *      path="/api/truck-tracking/{id}",
+     *      operationId="updateTruckTracking",
+     *      tags={"TruckTracking"},
+     *      summary="Update existing TruckTracking",
+     *      description="Returns updated TruckTracking data",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="TruckTracking id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -169,9 +147,10 @@ class CountryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
-     *              required={"name","iso3_code"},
-     *              @OA\Property(property="name", type="string", example="United States"),
-     *              @OA\Property(property="iso3_code", type="string", example="USA"),
+     *              required={"truck_id","lat","lng"},
+     *              @OA\Property(property="truck_id", type="integer", example=1),
+     *              @OA\Property(property="lat", type="number", example=40.7128),
+     *              @OA\Property(property="lng", type="number", example=-74.0060),
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,34 +175,31 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
+        $model = TruckTracking::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'iso3_code' => 'sometimes|required|string|max:3|unique:mst_country,iso3_code,' . $country->iso3_code
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
+            'program_id' => 'nullable|exists:mst_program,id',
+            'truck_id' => 'required|exists:tbl_truck,id',
         ]);
 
-        $country->update($validated);
-
-        return response()->json($country);
+        $model->update($validated);
+        return $model;
     }
 
     /**
      * @OA\Delete(
-     *      path="/api/country/{id}",
-     *      operationId="deleteCountry",
-     *      tags={"Country"},
-     *      summary="Delete existing Country",
+     *      path="/api/truck-tracking/{id}",
+     *      operationId="deleteTruckTracking",
+     *      tags={"TruckTracking"},
+     *      summary="Delete existing TruckTracking",
      *      description="Deletes a record and returns no content",
      *      @OA\Parameter(
      *          name="id",
-     *          description="Country id",
+     *          description="TruckTracking id",
      *          required=true,
      *          in="path",
      *          @OA\Schema(
@@ -249,16 +225,9 @@ class CountryController extends Controller
      *      )
      * )
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $country = Country::find($id);
-
-        if (!$country) {
-            return response()->json(['message' => 'Country not found'], 404);
-        }
-
-        $country->delete();
-
-        return response()->json(['message' => 'Country deleted successfully']);
+        TruckTracking::destroy($id);
+        return response()->json(null, 204);
     }
 }
