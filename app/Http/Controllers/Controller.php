@@ -16,9 +16,16 @@ namespace App\Http\Controllers;
  *      )
  * )
  *
- * @OA\Server(
  *      url=L5_SWAGGER_CONST_HOST,
  *      description="Demo API Server"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="sanctum",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Enter your bearer token in the format **Bearer &lt;token&gt;**"
  * )
  */
 abstract class Controller

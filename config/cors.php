@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:3000'),
+        env('L5_SWAGGER_CONST_HOST', 'http://localhost:8000'),
+        env('APP_URL', 'http://localhost:8000')
+    ],
 
     'allowed_origins_patterns' => [],
 
