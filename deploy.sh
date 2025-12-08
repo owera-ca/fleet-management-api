@@ -2,10 +2,14 @@
 set -e
 
 echo "Deployment started ..."
-``
+
 # Enter maintenance mode or return true
 # if already is in maintenance mode
 (php artisan down) || true
+
+# Discard local changes
+git reset --hard HEAD
+git clean -fd
 
 # Pull the latest version of the app
 git pull origin main
