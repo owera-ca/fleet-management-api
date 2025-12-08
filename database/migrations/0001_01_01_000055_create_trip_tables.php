@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -134,11 +133,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_trip');
-        Schema::dropIfExists('tbl_trip_damage');
-        Schema::dropIfExists('tbl_trip_logbook');
-        Schema::dropIfExists('tbl_trip_pickup_drop');
-        Schema::dropIfExists('tbl_expense');
         Schema::dropIfExists('tbl_expense_item');
+        Schema::dropIfExists('tbl_expense');
+        Schema::dropIfExists('tbl_trip_pickup_drop');
+        Schema::dropIfExists('tbl_trip_logbook');
+        Schema::dropIfExists('tbl_trip_damage');
+        Schema::dropIfExists('tbl_trip');
     }
 };

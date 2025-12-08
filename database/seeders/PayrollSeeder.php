@@ -10,7 +10,9 @@ class PayrollSeeder extends Seeder
 {
     public function run()
     {
-        Payroll::factory()->count(3)->create();
-        PayrollItem::factory()->count(10)->create();
+        $program = \App\Models\Program::first();
+
+        Payroll::factory()->count(3)->create(['program_id' => $program?->id]);
+        PayrollItem::factory()->count(10)->create(['program_id' => $program?->id]);
     }
 }

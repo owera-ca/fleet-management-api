@@ -11,8 +11,10 @@ class ShopSeeder extends Seeder
 {
     public function run()
     {
-        ShopJob::factory()->count(5)->create();
-        ShopJobInspection::factory()->count(5)->create();
-        ShopJobItem::factory()->count(10)->create();
+        $program = \App\Models\Program::first();
+
+        ShopJob::factory()->count(5)->create(['program_id' => $program?->id]);
+        ShopJobInspection::factory()->count(5)->create(['program_id' => $program?->id]);
+        ShopJobItem::factory()->count(10)->create(['program_id' => $program?->id]);
     }
 }

@@ -4,13 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
-    {  
+    {
 
         Schema::create('mst_country', function (Blueprint $table) {
             $table->id();
@@ -225,25 +224,27 @@ return new class extends Migration
         });
 
     }
-    
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('mst_country');
-        Schema::dropIfExists('mst_province');
+        Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('mst_orgnode');
+        Schema::dropIfExists('tbl_shop');
+        Schema::dropIfExists('mst_metadata');
+        Schema::dropIfExists('mst_line_item');
+        Schema::dropIfExists('mst_event');
+        Schema::dropIfExists('mst_sms_template');
+        Schema::dropIfExists('mst_email_template');
+        Schema::dropIfExists('mst_document');
+        Schema::dropIfExists('mst_entity');
         Schema::dropIfExists('tbl_address');
         Schema::dropIfExists('mst_program');
-        Schema::dropIfExists('mst_entity');
-        Schema::dropIfExists('mst_document');
-        Schema::dropIfExists('mst_email_template');
-        Schema::dropIfExists('mst_sms_template');
-        Schema::dropIfExists('mst_event');
-        Schema::dropIfExists('mst_line_item');
-        Schema::dropIfExists('mst_metadata');
-        Schema::dropIfExists('tbl_shop');
-        Schema::dropIfExists('mst_orgnode');
+        Schema::dropIfExists('mst_province');
+        Schema::dropIfExists('mst_country');
+        Schema::enableForeignKeyConstraints();
     }
 };

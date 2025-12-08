@@ -26,8 +26,20 @@ class AddressFactory extends Factory
             'postal_zip' => $this->faker->postcode,
             'notes' => $this->faker->sentence,
             // 'program_id' => Program::factory(), // Avoid circular dependency if possible, or handle carefully
-            'country_id' => Country::factory(),
-            'province_state_id' => Province::factory(),
+            'country_id' => function () {
+                return Country::inRandomOrder()->first()->id ?? Country::factory()->create()->id;
+            },
+            'province_state_id' => function (array $attributes) {
+                // Try to get a province from the selected country
+                $countryId = $attributes['country_id'] ?? null;
+                if ($countryId) {
+                    $province = Province::where('country_id', $countryId)->inRandomOrder()->first();
+                    if ($province) {
+                        return $province->id;
+                    }
+                }
+                return Province::inRandomOrder()->first()->id ?? Province::factory()->create()->id;
+            },
         ];
     }
 }

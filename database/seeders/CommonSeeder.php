@@ -15,12 +15,14 @@ class CommonSeeder extends Seeder
 {
     public function run()
     {
-        Asset::factory()->count(5)->create();
-        Document::factory()->count(5)->create();
-        Email::factory()->count(5)->create();
-        Sms::factory()->count(5)->create();
-        EntityTransition::factory()->count(5)->create();
-        Messaging::factory()->count(5)->create();
-        MetadataValue::factory()->count(5)->create();
+        $program = \App\Models\Program::first();
+
+        Asset::factory()->count(5)->create(['program_id' => $program?->id]);
+        Document::factory()->count(5)->create(['program_id' => $program?->id]);
+        Email::factory()->count(5)->create(['program_id' => $program?->id]);
+        Sms::factory()->count(5)->create(['program_id' => $program?->id]);
+        EntityTransition::factory()->count(5)->create(['program_id' => $program?->id]);
+        Messaging::factory()->count(5)->create(['program_id' => $program?->id]);
+        MetadataValue::factory()->count(5)->create(['program_id' => $program?->id]);
     }
 }

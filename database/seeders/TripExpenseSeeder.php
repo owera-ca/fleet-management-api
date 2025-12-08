@@ -14,11 +14,13 @@ class TripExpenseSeeder extends Seeder
 {
     public function run()
     {
-        Trip::factory()->count(5)->create();
-        TripDamage::factory()->count(3)->create();
-        TripLogbook::factory()->count(10)->create();
-        TripPickupDrop::factory()->count(10)->create();
-        Expense::factory()->count(5)->create();
-        ExpenseItem::factory()->count(10)->create();
+        $program = \App\Models\Program::first();
+
+        Trip::factory()->count(5)->create(['program_id' => $program?->id]);
+        TripDamage::factory()->count(3)->create(['program_id' => $program?->id]);
+        TripLogbook::factory()->count(10)->create(['program_id' => $program?->id]);
+        TripPickupDrop::factory()->count(10)->create(['program_id' => $program?->id]);
+        Expense::factory()->count(5)->create(['program_id' => $program?->id]);
+        ExpenseItem::factory()->count(10)->create(['program_id' => $program?->id]);
     }
 }

@@ -21,18 +21,18 @@ class MasterSeeder extends Seeder
 {
     public function run()
     {
-        Province::factory()->count(5)->create();
-        Program::factory()->count(3)->create();
-        Address::factory()->count(10)->create();
-        Entity::factory()->count(5)->create();
-        DocumentType::factory()->count(3)->create();
-        EmailTemplate::factory()->count(2)->create();
-        SmsTemplate::factory()->count(2)->create();
-        Event::factory()->count(3)->create();
-        LineItem::factory()->count(10)->create();
-        MetadataField::factory()->count(5)->create();
-        Shop::factory()->count(2)->create();
-        OrgNode::factory()->count(3)->create();
-        Role::factory()->count(3)->create();
+        //Province::factory()->count(5)->create();
+        $program = Program::firstOrCreate(['name' => 'Default Program'], ['code' => 'DEF']);
+        Address::factory()->count(10)->create(['program_id' => $program->id]);
+        Entity::factory()->count(5)->create(['program_id' => $program->id]);
+        DocumentType::factory()->count(3)->create(['program_id' => $program->id]);
+        EmailTemplate::factory()->count(2)->create(['program_id' => $program->id]);
+        SmsTemplate::factory()->count(2)->create(['program_id' => $program->id]);
+        Event::factory()->count(3)->create(['program_id' => $program->id]);
+        LineItem::factory()->count(10)->create(['program_id' => $program->id]);
+        MetadataField::factory()->count(5)->create(['program_id' => $program->id]);
+        Shop::factory()->count(2)->create(['program_id' => $program->id]);
+        OrgNode::factory()->count(3)->create(['program_id' => $program->id]);
+        //Role::factory()->count(3)->create(['program_id' => $program->id]);
     }
 }

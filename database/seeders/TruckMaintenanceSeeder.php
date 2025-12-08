@@ -13,10 +13,12 @@ class TruckMaintenanceSeeder extends Seeder
 {
     public function run()
     {
-        Truck::factory()->count(5)->create();
-        MasterTruckMaintenance::factory()->count(3)->create();
-        TruckMaintenance::factory()->count(5)->create();
-        TruckMaintenanceItem::factory()->count(10)->create();
-        TruckTracking::factory()->count(10)->create();
+        $program = \App\Models\Program::first();
+
+        Truck::factory()->count(5)->create(['program_id' => $program?->id]);
+        MasterTruckMaintenance::factory()->count(3)->create(['program_id' => $program?->id]);
+        TruckMaintenance::factory()->count(5)->create(); // No program_id
+        TruckMaintenanceItem::factory()->count(10)->create(['program_id' => $program?->id]);
+        TruckTracking::factory()->count(10)->create(['program_id' => $program?->id]);
     }
 }

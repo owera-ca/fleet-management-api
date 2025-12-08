@@ -18,15 +18,17 @@ class ShipperTransSeeder extends Seeder
 {
     public function run()
     {
-        Carrier::factory()->count(3)->create();
-        Shipper::factory()->count(3)->create();
-        CarrierDispatch::factory()->count(5)->create();
-        ShipAddress::factory()->count(5)->create();
-        Shipment::factory()->count(5)->create();
-        Cargo::factory()->count(10)->create();
-        ShipmentBid::factory()->count(5)->create();
-        Transaction::factory()->count(10)->create();
-        Order::factory()->count(5)->create();
-        OrderItem::factory()->count(10)->create();
+        $program = \App\Models\Program::first();
+
+        Carrier::factory()->count(3)->create(['program_id' => $program?->id]);
+        Shipper::factory()->count(3)->create(['program_id' => $program?->id]);
+        CarrierDispatch::factory()->count(5)->create(['program_id' => $program?->id]);
+        ShipAddress::factory()->count(5)->create(['program_id' => $program?->id]);
+        Shipment::factory()->count(5)->create(['program_id' => $program?->id]);
+        Cargo::factory()->count(10)->create(['program_id' => $program?->id]);
+        ShipmentBid::factory()->count(5)->create(['program_id' => $program?->id]);
+        Transaction::factory()->count(10)->create(['program_id' => $program?->id]);
+        Order::factory()->count(5)->create(['program_id' => $program?->id]);
+        OrderItem::factory()->count(10)->create(['program_id' => $program?->id]);
     }
 }

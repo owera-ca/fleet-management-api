@@ -15,7 +15,7 @@ class ProvinceFactory extends Factory
         return [
             'name' => $this->faker->state,
             'iso3_code' => strtoupper($this->faker->lexify('???')),
-            'country_id' => Country::factory(),
+            'country_id' => Country::inRandomOrder()->first()->id ?? Country::factory(),
         ];
     }
 }
