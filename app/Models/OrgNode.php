@@ -15,6 +15,8 @@ class OrgNode extends Model
 
     protected $fillable = [
         'name',
+        'code',
+        'root_id',
         'parent_id',
         '_lft',
         '_rgt',

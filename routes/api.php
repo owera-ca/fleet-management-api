@@ -88,6 +88,10 @@ Route::apiResource('line-item', LineItemController::class);
 Route::apiResource('metadata-field', MetadataFieldController::class);
 Route::apiResource('shop', ShopController::class);
 Route::apiResource('org-node', OrgNodeController::class);
+Route::get('org-node/{id}/children', [OrgNodeController::class, 'getChildren']);
+Route::get('org-node/{id}/ancestors', [OrgNodeController::class, 'getAncestors']);
+Route::get('org-node/{id}/siblings', [OrgNodeController::class, 'getSiblings']);
+Route::get('org-node/root/{rootId}', [OrgNodeController::class, 'getNodesByRoot']);
 Route::apiResource('role', RoleController::class);
 
 // Definitions

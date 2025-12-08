@@ -226,4 +226,106 @@ class OrgNodeController extends Controller
         OrgNode::destroy($id);
         return response()->json(null, 204);
     }
+    /**
+     * @OA\Get(
+     *      path="/api/org-node/{id}/children",
+     *      operationId="getOrgNodeChildren",
+     *      tags={"OrgNode"},
+     *      summary="Get child nodes",
+     *      description="Returns direct children or all descendants",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="OrgNode id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       )
+     * )
+     */
+    public function getChildren($id)
+    {
+        $node = OrgNode::findOrFail($id);
+        return $node->children()->get();
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/org-node/{id}/ancestors",
+     *      operationId="getOrgNodeAncestors",
+     *      tags={"OrgNode"},
+     *      summary="Get ancestor nodes",
+     *      description="Returns path to root",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="OrgNode id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       )
+     * )
+     */
+    public function getAncestors($id)
+    {
+        $node = OrgNode::findOrFail($id);
+        return $node->ancestors()->get();
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/org-node/{id}/siblings",
+     *      operationId="getOrgNodeSiblings",
+     *      tags={"OrgNode"},
+     *      summary="Get sibling nodes",
+     *      description="Returns nodes at the same level",
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="OrgNode id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       )
+     * )
+     */
+    public function getSiblings($id)
+    {
+        $node = OrgNode::findOrFail($id);
+        return $node->siblings()->get();
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/org-node/root/{rootId}",
+     *      operationId="getOrgNodesByRoot",
+     *      tags={"OrgNode"},
+     *      summary="Get nodes by root ID",
+     *      description="Returns all nodes belonging to a specific root tree",
+     *      @OA\Parameter(
+     *          name="rootId",
+     *          description="Root ID of the tree",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       )
+     * )
+     */
+    public function getNodesByRoot($rootId)
+    {
+        return OrgNode::where('root_id', $rootId)->orWhere('id', $rootId)->get();
+    }
 }

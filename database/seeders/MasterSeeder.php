@@ -32,7 +32,7 @@ class MasterSeeder extends Seeder
         LineItem::factory()->count(10)->create(['program_id' => $program->id]);
         MetadataField::factory()->count(5)->create(['program_id' => $program->id]);
         Shop::factory()->count(2)->create(['program_id' => $program->id]);
-        OrgNode::factory()->count(3)->create(['program_id' => $program->id]);
+        //OrgNode::factory()->count(3)->create(['program_id' => $program->id]);
         //Role::factory()->count(3)->create(['program_id' => $program->id]);
     }
 }

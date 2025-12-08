@@ -5678,6 +5678,110 @@
                 }
             }
         },
+        "/api/org-node/{id}/children": {
+            "get": {
+                "tags": [
+                    "OrgNode"
+                ],
+                "summary": "Get child nodes",
+                "description": "Returns direct children or all descendants",
+                "operationId": "getOrgNodeChildren",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "OrgNode id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/api/org-node/{id}/ancestors": {
+            "get": {
+                "tags": [
+                    "OrgNode"
+                ],
+                "summary": "Get ancestor nodes",
+                "description": "Returns path to root",
+                "operationId": "getOrgNodeAncestors",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "OrgNode id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/api/org-node/{id}/siblings": {
+            "get": {
+                "tags": [
+                    "OrgNode"
+                ],
+                "summary": "Get sibling nodes",
+                "description": "Returns nodes at the same level",
+                "operationId": "getOrgNodeSiblings",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "OrgNode id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/api/org-node/root/{rootId}": {
+            "get": {
+                "tags": [
+                    "OrgNode"
+                ],
+                "summary": "Get nodes by root ID",
+                "description": "Returns all nodes belonging to a specific root tree",
+                "operationId": "getOrgNodesByRoot",
+                "parameters": [
+                    {
+                        "name": "rootId",
+                        "in": "path",
+                        "description": "Root ID of the tree",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
         "/api/payroll": {
             "get": {
                 "tags": [

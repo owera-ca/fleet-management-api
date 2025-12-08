@@ -211,6 +211,8 @@ return new class extends Migration {
         Schema::create('mst_orgnode', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('code')->nullable();
+            $table->integer('root_id')->nullable();
             $table->integer('parent_id')->nullable();
             $table->integer('_lft')->nullable();
             $table->integer('_rgt')->nullable();
