@@ -93,7 +93,7 @@ Route::apiResource('role', RoleController::class);
 // Definitions
 Route::apiResource('entity-role-definition', EntityRoleDefinitionController::class);
 Route::apiResource('entity-transition-definition', EntityTransitionDefinitionController::class);
-Route::apiResource('entity-transition-role-definition', EntityTransitionRoleDefinitionController::class);
+Route::apiResource('entity-transition-role-definition', EntityTransitionRoleDefinitionController::class)->parameters(['entity-transition-role-definition' => 'id']);
 
 // Common
 Route::apiResource('asset', AssetController::class);
