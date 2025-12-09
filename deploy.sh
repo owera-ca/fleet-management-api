@@ -15,7 +15,12 @@ git clean -fd
 git pull origin main
 
 # Install composer dependencies
-composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+# check if the environment is local or staging vs production
+if [ "$APP_ENV" = "local" || "$APP_ENV" = "staging" ]; then
+    composer install --no-interaction --prefer-dist --optimize-autoloader
+else
+    composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+fi
 
 # Clear the old cache
 php artisan clear-compiled
