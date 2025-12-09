@@ -32,7 +32,12 @@ php artisan optimize
 # npm run prod
 
 # Run database migrations
-php artisan migrate --force
+# check if the environment is local or staging vs production
+if [ "$APP_ENV" = "local" || "$APP_ENV" = "staging" ]; then
+    php artisan migrate:fresh --seed --force
+else
+    php artisan migrate:fresh --force
+fi
 
 # Exit maintenance mode
 php artisan up
